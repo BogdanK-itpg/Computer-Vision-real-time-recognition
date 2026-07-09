@@ -35,7 +35,6 @@ const DETECTOR_LABELS: Record<string, string> = {
   hand_landmarker: "Hand Landmarks",
   pose_landmarker: "Pose Landmarks",
   object_detector: "Object Detection",
-  image_segmenter: "Image Segmentation",
   gesture_recognizer: "Gesture Recognition",
 };
 

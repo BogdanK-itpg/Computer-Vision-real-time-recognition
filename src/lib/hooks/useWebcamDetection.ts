@@ -7,7 +7,6 @@ import { detectFaceLandmarks } from "@/lib/detectors/face-landmarker";
 import { detectHandLandmarks } from "@/lib/detectors/hand-landmarker";
 import { detectPoseLandmarks } from "@/lib/detectors/pose-landmarker";
 import { detectObjects } from "@/lib/detectors/object-detector";
-import { segmentImage } from "@/lib/detectors/image-segmenter";
 import { recognizeGestures } from "@/lib/detectors/gesture-recognizer";
 
 const DETECTOR_MAP: Record<
@@ -20,7 +19,6 @@ const DETECTOR_MAP: Record<
   pose_landmarker: async (input) => detectPoseLandmarks(input),
   object_detector: async (input, confidence) =>
     detectObjects(input, confidence),
-  image_segmenter: async (input) => segmentImage(input),
   gesture_recognizer: async (input) => recognizeGestures(input),
 };
 
@@ -91,10 +89,6 @@ export function useWebcamDetection() {
         case "object_detector":
           combined.objectDetections =
             item.result as DetectionResults["objectDetections"];
-          break;
-        case "image_segmenter":
-          combined.segmentation =
-            item.result as DetectionResults["segmentation"];
           break;
         case "gesture_recognizer":
           combined.gestures = item.result as DetectionResults["gestures"];

@@ -33,11 +33,6 @@ export interface ObjectDetection {
   score: number;
 }
 
-export interface SegmentationResult {
-  confidenceMasks: ImageData[];
-  categoryMask?: ImageData | null;
-}
-
 export interface GestureResult {
   gestureName: string;
   score: number;
@@ -51,7 +46,6 @@ export interface DetectionResults {
   handLandmarks?: HandLandmarksResult;
   poseLandmarks?: PoseLandmarksResult;
   objectDetections?: ObjectDetection[];
-  segmentation?: SegmentationResult;
   gestures?: GestureResult[];
   processingTimeMs: number;
 }
@@ -62,7 +56,6 @@ export type DetectorType =
   | "hand_landmarker"
   | "pose_landmarker"
   | "object_detector"
-  | "image_segmenter"
   | "gesture_recognizer";
 
 export const DETECTOR_LABELS: Record<DetectorType, string> = {
@@ -71,7 +64,6 @@ export const DETECTOR_LABELS: Record<DetectorType, string> = {
   hand_landmarker: "Hand Landmarks",
   pose_landmarker: "Pose Landmarks",
   object_detector: "Object Detection",
-  image_segmenter: "Image Segmentation",
   gesture_recognizer: "Gesture Recognition",
 };
 
@@ -81,6 +73,5 @@ export const DETECTOR_COLORS: Record<DetectorType, string> = {
   hand_landmarker: "#eab308",
   pose_landmarker: "#a855f7",
   object_detector: "#ef4444",
-  image_segmenter: "#06b6d4",
   gesture_recognizer: "#ec4899",
 };

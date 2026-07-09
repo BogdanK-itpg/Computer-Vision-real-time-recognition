@@ -25,10 +25,6 @@ export function AnnotatedImage({
 
   return (
     <div className="space-y-3">
-      <canvas
-        ref={canvasRef}
-        className="max-w-full h-auto rounded-lg border border-gray-200"
-      />
       <Button variant="outline" size="sm" onClick={handleDownload}>
         Download Annotated
       </Button>

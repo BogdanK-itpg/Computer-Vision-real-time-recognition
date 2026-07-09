@@ -15,11 +15,14 @@ const ALL_DETECTORS: DetectorType[] = [
   "hand_landmarker",
   "pose_landmarker",
   "object_detector",
-  "image_segmenter",
   "gesture_recognizer",
 ];
 
-export function ModelSelector({ selected, onChange, disabled }: ModelSelectorProps) {
+export function ModelSelector({
+  selected,
+  onChange,
+  disabled,
+}: ModelSelectorProps) {
   const toggle = (key: DetectorType) => {
     if (selected.includes(key)) {
       onChange(selected.filter((s) => s !== key));

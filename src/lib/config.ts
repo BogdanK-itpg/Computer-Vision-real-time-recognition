@@ -6,7 +6,6 @@ export const DetectorType = z.enum([
   "hand_landmarker",
   "pose_landmarker",
   "object_detector",
-  "image_segmenter",
   "gesture_recognizer",
 ]);
 export type DetectorType = z.infer<typeof DetectorType>;
@@ -104,12 +103,6 @@ export const MODEL_REGISTRY: Record<string, ModelEntry> = {
     version: "1",
     sizeBytes: 7254339,
     detectorType: "object_detector",
-  },
-  image_segmenter: {
-    url: `${MODEL_BASE}/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite`,
-    version: "latest",
-    sizeBytes: 249537,
-    detectorType: "image_segmenter",
   },
   gesture_recognizer: {
     url: `${MODEL_BASE}/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task`,

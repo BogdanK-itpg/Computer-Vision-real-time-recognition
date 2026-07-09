@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { DETECTOR_LABELS, DETECTOR_COLORS } from "@/lib/detectors/types";
 import type { DetectorType } from "@/lib/detectors/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
 const ALL_DETECTORS: DetectorType[] = [
   "face_detector",
@@ -11,7 +17,6 @@ const ALL_DETECTORS: DetectorType[] = [
   "hand_landmarker",
   "pose_landmarker",
   "object_detector",
-  "image_segmenter",
   "gesture_recognizer",
 ];
 
@@ -21,12 +26,12 @@ const DEFAULT_CONFIDENCE: Record<string, number> = {
   hand_landmarker: 0.5,
   pose_landmarker: 0.5,
   object_detector: 0.5,
-  image_segmenter: 0.5,
   gesture_recognizer: 0.5,
 };
 
 export default function SettingsPage() {
-  const [thresholds, setThresholds] = useState<Record<string, number>>(DEFAULT_CONFIDENCE);
+  const [thresholds, setThresholds] =
+    useState<Record<string, number>>(DEFAULT_CONFIDENCE);
   const [frameSkip, setFrameSkip] = useState(1);
 
   const updateThreshold = (key: string, value: number) => {
@@ -47,8 +52,8 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Confidence Thresholds</CardTitle>
             <CardDescription>
-              Set the minimum confidence score for each detector. Higher values reduce false
-              positives but may miss detections.
+              Set the minimum confidence score for each detector. Higher values
+              reduce false positives but may miss detections.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -74,7 +79,9 @@ export default function SettingsPage() {
                   max={1}
                   step={0.05}
                   value={thresholds[key]}
-                  onChange={(e) => updateThreshold(key, parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    updateThreshold(key, parseFloat(e.target.value))
+                  }
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   style={{
                     background: `linear-gradient(to right, #2563eb 0%, #2563eb ${thresholds[key] * 100}%, #e5e7eb ${thresholds[key] * 100}%, #e5e7eb 100%)`,
@@ -89,13 +96,16 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Processing</CardTitle>
             <CardDescription>
-              Adjust performance-related settings for video and webcam processing.
+              Adjust performance-related settings for video and webcam
+              processing.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className="text-sm font-medium text-gray-700">Frame Skip</label>
+                <label className="text-sm font-medium text-gray-700">
+                  Frame Skip
+                </label>
                 <span className="text-sm text-gray-500">{frameSkip}</span>
               </div>
               <input

@@ -4,14 +4,12 @@ import {
   HandLandmarker,
   PoseLandmarker,
   ObjectDetector,
-  ImageSegmenter,
   GestureRecognizer,
   type FaceDetectorOptions,
   type FaceLandmarkerOptions,
   type HandLandmarkerOptions,
   type PoseLandmarkerOptions,
   type ObjectDetectorOptions,
-  type ImageSegmenterOptions,
   type GestureRecognizerOptions,
   FilesetResolver,
 } from "@mediapipe/tasks-vision";
@@ -21,14 +19,22 @@ import { logger } from "@/lib/utils/logger";
 
 class ModelManager {
   private wasmInitialized = false;
-  private wasmFileset: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>> | null = null;
-  private loadedModels: Map<string, { entry: ModelEntry; instance: unknown; loadedAt: number }> = new Map();
+  private wasmFileset: Awaited<
+    ReturnType<typeof FilesetResolver.forVisionTasks>
+  > | null = null;
+  private loadedModels: Map<
+    string,
+    { entry: ModelEntry; instance: unknown; loadedAt: number }
+  > = new Map();
   private loadPromises: Map<string, Promise<unknown>> = new Map();
 
-  async initializeWasm(): Promise<Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>> {
+  async initializeWasm(): Promise<
+    Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
+  > {
     if (this.wasmFileset) return this.wasmFileset;
-    const basePath = process.env.NEXT_PUBLIC_MODEL_CDN_BASE
-      || "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/";
+    const basePath =
+      process.env.NEXT_PUBLIC_MODEL_CDN_BASE ||
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/";
     this.wasmFileset = await FilesetResolver.forVisionTasks(basePath);
     this.wasmInitialized = true;
     logger.info("ModelManager", "WASM runtime initialized");
@@ -117,16 +123,6 @@ class ModelManager {
         instance = await ObjectDetector.createFromOptions(wasmFileset, options);
         break;
       }
-      case "image_segmenter": {
-        const options: ImageSegmenterOptions = {
-          baseOptions,
-          runningMode: "IMAGE",
-          outputConfidenceMasks: true,
-          outputCategoryMask: false,
-        };
-        instance = await ImageSegmenter.createFromOptions(wasmFileset, options);
-        break;
-      }
       case "gesture_recognizer": {
         const options: GestureRecognizerOptions = {
           baseOptions,
@@ -139,7 +135,10 @@ class ModelManager {
             maxResults: 1,
           },
         };
-        instance = await GestureRecognizer.createFromOptions(wasmFileset, options);
+        instance = await GestureRecognizer.createFromOptions(
+          wasmFileset,
+          options,
+        );
         break;
       }
       default:
