@@ -1,29 +1,54 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { DetectorType } from "@/lib/detectors/types";
 import { useVideoDetection } from "@/lib/hooks/useVideoDetection";
 import { useModelManager } from "@/lib/hooks/useModelManager";
 import { VideoUploader } from "@/components/detection/VideoUploader";
 import { DetectionCanvas } from "@/components/detection/DetectionCanvas";
+import { VideoPlayback } from "@/components/detection/VideoPlayback";
 import { ModelSelector } from "@/components/detection/ModelSelector";
 import { ConfidenceSlider } from "@/components/detection/ConfidenceSlider";
 import { ResultPanel } from "@/components/detection/ResultPanel";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/Card";
 
 export default function VideoDetectionPage() {
-  const { frameResults, loading, progress, error, processVideo, cancel, reset } = useVideoDetection();
+  const {
+    frameResults,
+    loading,
+    progress,
+    error,
+    processVideo,
+    cancel,
+    reset,
+  } = useVideoDetection();
   const { initialize, wasmInitialized, error: wasmError } = useModelManager();
 
-  const [activeDetectors, setActiveDetectors] = useState<DetectorType[]>(["face_detector"]);
+  const [activeDetectors, setActiveDetectors] = useState<DetectorType[]>([
+    "face_detector",
+  ]);
   const [confidence, setConfidence] = useState(0.5);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const [frameSkip] = useState(5);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [thumbnail, setThumbnail] = useState<ImageData | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [playbackMode, setPlaybackMode] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+    };
+  }, [videoUrl]);
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -31,12 +56,16 @@ export default function VideoDetectionPage() {
       reset();
       setCurrentFrameIndex(0);
       setThumbnail(null);
+      setPlaybackMode(false);
+
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
 
       if (!wasmInitialized) {
         await initialize();
       }
 
       const url = URL.createObjectURL(file);
+      setVideoUrl(url);
       const video = document.createElement("video");
       video.src = url;
       videoRef.current = video;
@@ -71,7 +100,22 @@ export default function VideoDetectionPage() {
     }
 
     await processVideo(video, activeDetectors, confidence, frameSkip);
-  }, [videoRef, selectedFile, wasmInitialized, initialize, processVideo, activeDetectors, confidence, frameSkip]);
+  }, [
+    videoRef,
+    selectedFile,
+    wasmInitialized,
+    initialize,
+    processVideo,
+    activeDetectors,
+    confidence,
+    frameSkip,
+  ]);
+
+  const handleReset = useCallback(() => {
+    reset();
+    setPlaybackMode(false);
+    setCurrentFrameIndex(0);
+  }, [reset]);
 
   const currentResults = frameResults[currentFrameIndex]?.results ?? null;
 
@@ -84,8 +128,16 @@ export default function VideoDetectionPage() {
         </p>
       </div>
 
-      {wasmError && <Alert variant="error" title="Initialization Error" className="mb-6">{wasmError}</Alert>}
-      {error && <Alert variant="error" title="Processing Error" className="mb-6">{error}</Alert>}
+      {wasmError && (
+        <Alert variant="error" title="Initialization Error" className="mb-6">
+          {wasmError}
+        </Alert>
+      )}
+      {error && (
+        <Alert variant="error" title="Processing Error" className="mb-6">
+          {error}
+        </Alert>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
@@ -94,7 +146,10 @@ export default function VideoDetectionPage() {
               <CardTitle>Upload</CardTitle>
             </CardHeader>
             <CardContent>
-              <VideoUploader onFileSelect={handleFileSelect} disabled={loading} />
+              <VideoUploader
+                onFileSelect={handleFileSelect}
+                disabled={loading}
+              />
             </CardContent>
           </Card>
 
@@ -102,7 +157,9 @@ export default function VideoDetectionPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {currentResults ? `Frame ${currentFrameIndex + 1}` : "Preview"}
+                  {currentResults
+                    ? `Frame ${currentFrameIndex + 1}`
+                    : "Preview"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -116,7 +173,7 @@ export default function VideoDetectionPage() {
             </Card>
           )}
 
-          {frameResults.length > 0 && (
+          {frameResults.length > 0 && !playbackMode && (
             <Card>
               <CardHeader>
                 <CardTitle>Frame Navigation</CardTitle>
@@ -130,7 +187,9 @@ export default function VideoDetectionPage() {
                     size="sm"
                     variant="outline"
                     disabled={currentFrameIndex === 0}
-                    onClick={() => setCurrentFrameIndex((i) => Math.max(0, i - 1))}
+                    onClick={() =>
+                      setCurrentFrameIndex((i) => Math.max(0, i - 1))
+                    }
                   >
                     Previous
                   </Button>
@@ -141,11 +200,30 @@ export default function VideoDetectionPage() {
                     size="sm"
                     variant="outline"
                     disabled={currentFrameIndex >= frameResults.length - 1}
-                    onClick={() => setCurrentFrameIndex((i) => Math.min(frameResults.length - 1, i + 1))}
+                    onClick={() =>
+                      setCurrentFrameIndex((i) =>
+                        Math.min(frameResults.length - 1, i + 1),
+                      )
+                    }
                   >
                     Next
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {frameResults.length > 0 && playbackMode && videoUrl && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Annotated Playback</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <VideoPlayback
+                  videoUrl={videoUrl}
+                  frameResults={frameResults}
+                  frameSkip={frameSkip}
+                />
               </CardContent>
             </Card>
           )}
@@ -169,7 +247,9 @@ export default function VideoDetectionPage() {
                 disabled={!selectedFile || loading}
                 loading={loading}
               >
-                {loading ? `Processing (${Math.round(progress)}%)` : "Process Video"}
+                {loading
+                  ? `Processing (${Math.round(progress)}%)`
+                  : "Process Video"}
               </Button>
               {loading && (
                 <Button className="w-full" variant="outline" onClick={cancel}>
@@ -177,8 +257,21 @@ export default function VideoDetectionPage() {
                 </Button>
               )}
               {!loading && frameResults.length > 0 && (
-                <Button className="w-full" variant="ghost" onClick={reset}>
+                <Button
+                  className="w-full"
+                  variant="ghost"
+                  onClick={handleReset}
+                >
                   Clear Results
+                </Button>
+              )}
+              {!loading && frameResults.length > 0 && (
+                <Button
+                  className="w-full"
+                  variant={playbackMode ? "primary" : "outline"}
+                  onClick={() => setPlaybackMode((p) => !p)}
+                >
+                  {playbackMode ? "Frame by Frame" : "Play Annotated"}
                 </Button>
               )}
               {loading && (
@@ -196,7 +289,9 @@ export default function VideoDetectionPage() {
             <CardHeader>
               <CardTitle>Frame Results</CardTitle>
               <CardDescription>
-                {currentResults ? `${currentResults.processingTimeMs}ms` : "No data"}
+                {currentResults
+                  ? `${currentResults.processingTimeMs}ms`
+                  : "No data"}
               </CardDescription>
             </CardHeader>
             <CardContent>
