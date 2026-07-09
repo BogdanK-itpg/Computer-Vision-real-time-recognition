@@ -31,82 +31,88 @@ export type ModelEntry = z.infer<typeof ModelEntrySchema>;
 
 export const AppConfigSchema = z.object({
   detectors: z.record(z.string(), DetectorConfigSchema).default({}),
-  camera: z.object({
-    preferredWidth: z.number().int().positive().default(640),
-    preferredHeight: z.number().int().positive().default(480),
-    preferredFps: z.number().int().positive().default(30),
-  }).default({
-    preferredWidth: 640,
-    preferredHeight: 480,
-    preferredFps: 30,
-  }),
-  upload: z.object({
-    maxImageSizeMB: z.number().positive().default(20),
-    maxVideoSizeMB: z.number().positive().default(100),
-    allowedImageTypes: z
-      .array(z.string())
-      .default(["image/jpeg", "image/png", "image/webp"]),
-    allowedVideoTypes: z
-      .array(z.string())
-      .default(["video/mp4"]),
-  }).default({
-    maxImageSizeMB: 20,
-    maxVideoSizeMB: 100,
-    allowedImageTypes: ["image/jpeg", "image/png", "image/webp"],
-    allowedVideoTypes: ["video/mp4"],
-  }),
-  ui: z.object({
-    defaultTheme: z.enum(["light", "dark", "system"]).default("system"),
-    frameSkip: z.number().int().min(0).default(1),
-  }).default({
-    defaultTheme: "system",
-    frameSkip: 1,
-  }),
+  camera: z
+    .object({
+      preferredWidth: z.number().int().positive().default(640),
+      preferredHeight: z.number().int().positive().default(480),
+      preferredFps: z.number().int().positive().default(30),
+    })
+    .default({
+      preferredWidth: 640,
+      preferredHeight: 480,
+      preferredFps: 30,
+    }),
+  upload: z
+    .object({
+      maxImageSizeMB: z.number().positive().default(20),
+      maxVideoSizeMB: z.number().positive().default(100),
+      allowedImageTypes: z
+        .array(z.string())
+        .default(["image/jpeg", "image/png", "image/webp"]),
+      allowedVideoTypes: z.array(z.string()).default(["video/mp4"]),
+    })
+    .default({
+      maxImageSizeMB: 20,
+      maxVideoSizeMB: 100,
+      allowedImageTypes: ["image/jpeg", "image/png", "image/webp"],
+      allowedVideoTypes: ["video/mp4"],
+    }),
+  ui: z
+    .object({
+      defaultTheme: z.enum(["light", "dark", "system"]).default("system"),
+      frameSkip: z.number().int().min(0).default(1),
+    })
+    .default({
+      defaultTheme: "system",
+      frameSkip: 1,
+    }),
 });
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 
 export const DEFAULT_CONFIG: AppConfig = AppConfigSchema.parse({});
 
+const MODEL_BASE = "https://storage.googleapis.com/mediapipe-models";
+
 export const MODEL_REGISTRY: Record<string, ModelEntry> = {
   face_detector: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/face_detector.tflite",
-    version: "latest",
+    url: `${MODEL_BASE}/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+    version: "1",
     sizeBytes: 229746,
     detectorType: "face_detector",
   },
   face_landmarker: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/face_landmarker.task",
+    url: `${MODEL_BASE}/face_landmarker/face_landmarker/float16/latest/face_landmarker.task`,
     version: "latest",
     sizeBytes: 3758596,
     detectorType: "face_landmarker",
   },
   hand_landmarker: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/hand_landmarker.task",
+    url: `${MODEL_BASE}/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task`,
     version: "latest",
     sizeBytes: 7819105,
     detectorType: "hand_landmarker",
   },
   pose_landmarker: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/pose_landmarker.task",
+    url: `${MODEL_BASE}/pose_landmarker/pose_landmarker/float16/latest/pose_landmarker.task`,
     version: "latest",
     sizeBytes: 5777746,
     detectorType: "pose_landmarker",
   },
   object_detector: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/object_detector.task",
+    url: `${MODEL_BASE}/object_detector/efficientdet_lite0/float16/latest/object_detector.task`,
     version: "latest",
     sizeBytes: 7254339,
     detectorType: "object_detector",
   },
   image_segmenter: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/image_segmenter.task",
+    url: `${MODEL_BASE}/image_segmenter/selfie_segmenter/float16/latest/image_segmenter.task`,
     version: "latest",
     sizeBytes: 249537,
     detectorType: "image_segmenter",
   },
   gesture_recognizer: {
-    url: "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/gesture_recognizer.task",
+    url: `${MODEL_BASE}/gesture_recognizer/gesture_recognizer/float16/latest/gesture_recognizer.task`,
     version: "latest",
     sizeBytes: 8373440,
     detectorType: "gesture_recognizer",
