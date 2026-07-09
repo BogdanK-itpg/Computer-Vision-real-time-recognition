@@ -90,6 +90,8 @@ export function renderFaceDetections(
   detections: Detection[],
   color = "#22c55e",
 ): void {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   for (const d of detections) {
     const { originX, originY, width, height } = d.boundingBox;
     drawRect(ctx, originX, originY, width, height, color);
@@ -103,7 +105,7 @@ export function renderFaceDetections(
     for (const kp of d.keypoints) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(kp.x, kp.y, 3, 0, Math.PI * 2);
+      ctx.arc(kp.x * w, kp.y * h, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -114,11 +116,13 @@ export function renderFaceLandmarks(
   result: FaceLandmarksResult,
   color = "#3b82f6",
 ): void {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   for (const face of result.faceLandmarks) {
     for (const [x, y] of face) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 1, 0, Math.PI * 2);
+      ctx.arc(x * w, y * h, 2, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -129,11 +133,13 @@ export function renderHandLandmarks(
   result: HandLandmarksResult,
   color = "#eab308",
 ): void {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   for (const hand of result.handLandmarks) {
     for (const [x, y] of hand) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(x * w, y * h, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -144,11 +150,13 @@ export function renderPoseLandmarks(
   result: PoseLandmarksResult,
   color = "#a855f7",
 ): void {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   for (const pose of result.poseLandmarks) {
     for (const [x, y] of pose) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(x * w, y * h, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
