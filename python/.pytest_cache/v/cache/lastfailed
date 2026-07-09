@@ -1,0 +1,6 @@
+{
+  "tests/test_camera.py": true,
+  "tests/test_detectors.py": true,
+  "tests/test_pipelines.py": true,
+  "tests/test_visualization.py": true
+}
