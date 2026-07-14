@@ -11,7 +11,13 @@ import { ConfidenceSlider } from "@/components/detection/ConfidenceSlider";
 import { ResultPanel } from "@/components/detection/ResultPanel";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/Card";
 
 export default function WebcamDetectionPage() {
   const {
@@ -26,8 +32,15 @@ export default function WebcamDetectionPage() {
     reset,
   } = useWebcamDetection();
 
-  const { initialize, wasmInitialized, error: wasmError } = useModelManager();
-  const [activeDetectors, setActiveDetectorsState] = useState<DetectorType[]>(["face_detector"]);
+  const {
+    initialize,
+    loadModels,
+    wasmInitialized,
+    error: wasmError,
+  } = useModelManager();
+  const [activeDetectors, setActiveDetectorsState] = useState<DetectorType[]>([
+    "face_detector",
+  ]);
   const [confidence, setConfidenceState] = useState(0.5);
   const [capturedFrame, setCapturedFrame] = useState<ImageData | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -48,9 +61,18 @@ export default function WebcamDetectionPage() {
       if (!wasmInitialized) {
         await initialize();
       }
+      await loadModels(activeDetectors);
       startDetection();
     }
-  }, [active, wasmInitialized, initialize, startDetection, stopDetection]);
+  }, [
+    active,
+    wasmInitialized,
+    initialize,
+    loadModels,
+    activeDetectors,
+    startDetection,
+    stopDetection,
+  ]);
 
   const handleFrame = useCallback(
     (video: HTMLVideoElement) => {
@@ -77,8 +99,16 @@ export default function WebcamDetectionPage() {
         </p>
       </div>
 
-      {wasmError && <Alert variant="error" title="Initialization Error" className="mb-6">{wasmError}</Alert>}
-      {error && <Alert variant="error" title="Detection Error" className="mb-6">{error}</Alert>}
+      {wasmError && (
+        <Alert variant="error" title="Initialization Error" className="mb-6">
+          {wasmError}
+        </Alert>
+      )}
+      {error && (
+        <Alert variant="error" title="Detection Error" className="mb-6">
+          {error}
+        </Alert>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
@@ -139,7 +169,10 @@ export default function WebcamDetectionPage() {
                 onChange={setActiveDetectorsState}
                 disabled={active}
               />
-              <ConfidenceSlider value={confidence} onChange={setConfidenceState} />
+              <ConfidenceSlider
+                value={confidence}
+                onChange={setConfidenceState}
+              />
             </CardContent>
           </Card>
 
@@ -147,7 +180,9 @@ export default function WebcamDetectionPage() {
             <CardHeader>
               <CardTitle>Results</CardTitle>
               <CardDescription>
-                {results ? `Last frame: ${results.processingTimeMs}ms` : "No data"}
+                {results
+                  ? `Last frame: ${results.processingTimeMs}ms`
+                  : "No data"}
               </CardDescription>
             </CardHeader>
             <CardContent>

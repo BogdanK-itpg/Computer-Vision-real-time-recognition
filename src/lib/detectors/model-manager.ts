@@ -32,9 +32,7 @@ class ModelManager {
     Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
   > {
     if (this.wasmFileset) return this.wasmFileset;
-    const basePath =
-      process.env.NEXT_PUBLIC_MODEL_CDN_BASE ||
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm/";
+    const basePath = process.env.NEXT_PUBLIC_MODEL_CDN_BASE || "/wasm/";
     this.wasmFileset = await FilesetResolver.forVisionTasks(basePath);
     this.wasmInitialized = true;
     logger.info("ModelManager", "WASM runtime initialized");

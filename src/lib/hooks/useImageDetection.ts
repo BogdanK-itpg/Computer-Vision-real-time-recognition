@@ -89,7 +89,12 @@ export function useImageDetection() {
         setResults(combined);
         return combined;
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Detection failed";
+        const msg =
+          e instanceof Error
+            ? e.message
+            : e instanceof Event
+              ? `Event: ${e.type}`
+              : String(e);
         setError(msg);
         return null;
       } finally {

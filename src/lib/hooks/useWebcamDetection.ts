@@ -41,73 +41,77 @@ export function useWebcamDetection() {
   }, []);
 
   const processFrame = useCallback(async (video: HTMLVideoElement) => {
-    const now = performance.now();
-    lastFrameTimeRef.current = now;
+    try {
+      const now = performance.now();
+      lastFrameTimeRef.current = now;
 
-    const fps = fpsRef.current;
-    if (fps.lastTime === 0) fps.lastTime = now;
-    fps.frames++;
-    if (now - fps.lastTime >= 1000) {
-      fps.fps = fps.frames;
-      fps.frames = 0;
-      fps.lastTime = now;
-    }
-
-    const startTime = now;
-    const types = detectorsRef.current;
-
-    const detectorPromises = types
-      .filter((t) => DETECTOR_MAP[t])
-      .map(async (type) => {
-        const result = await DETECTOR_MAP[type](video, confidenceRef.current);
-        return { type, result };
-      });
-
-    const settled = await Promise.all(detectorPromises);
-    const elapsed = Math.round(performance.now() - startTime);
-
-    const combined: DetectionResults = { processingTimeMs: elapsed };
-    for (const item of settled) {
-      if (!item || item.result === null) continue;
-      switch (item.type) {
-        case "face_detector":
-          combined.faceDetections =
-            item.result as DetectionResults["faceDetections"];
-          break;
-        case "face_landmarker":
-          combined.faceLandmarks =
-            item.result as DetectionResults["faceLandmarks"];
-          break;
-        case "hand_landmarker":
-          combined.handLandmarks =
-            item.result as DetectionResults["handLandmarks"];
-          break;
-        case "pose_landmarker":
-          combined.poseLandmarks =
-            item.result as DetectionResults["poseLandmarks"];
-          break;
-        case "object_detector":
-          combined.objectDetections =
-            item.result as DetectionResults["objectDetections"];
-          break;
-        case "gesture_recognizer":
-          combined.gestures = item.result as DetectionResults["gestures"];
-          break;
+      const fps = fpsRef.current;
+      if (fps.lastTime === 0) fps.lastTime = now;
+      fps.frames++;
+      if (now - fps.lastTime >= 1000) {
+        fps.fps = fps.frames;
+        fps.frames = 0;
+        fps.lastTime = now;
       }
-    }
 
-    combined.processingTimeMs = elapsed;
-    setResults(combined);
+      const startTime = now;
+      const types = detectorsRef.current;
+
+      const detectorPromises = types
+        .filter((t) => DETECTOR_MAP[t])
+        .map(async (type) => {
+          const result = await DETECTOR_MAP[type](video, confidenceRef.current);
+          return { type, result };
+        });
+
+      const settled = await Promise.all(detectorPromises);
+      const elapsed = Math.round(performance.now() - startTime);
+
+      const combined: DetectionResults = { processingTimeMs: elapsed };
+      for (const item of settled) {
+        if (!item || item.result === null) continue;
+        switch (item.type) {
+          case "face_detector":
+            combined.faceDetections =
+              item.result as DetectionResults["faceDetections"];
+            break;
+          case "face_landmarker":
+            combined.faceLandmarks =
+              item.result as DetectionResults["faceLandmarks"];
+            break;
+          case "hand_landmarker":
+            combined.handLandmarks =
+              item.result as DetectionResults["handLandmarks"];
+            break;
+          case "pose_landmarker":
+            combined.poseLandmarks =
+              item.result as DetectionResults["poseLandmarks"];
+            break;
+          case "object_detector":
+            combined.objectDetections =
+              item.result as DetectionResults["objectDetections"];
+            break;
+          case "gesture_recognizer":
+            combined.gestures = item.result as DetectionResults["gestures"];
+            break;
+        }
+      }
+
+      combined.processingTimeMs = elapsed;
+      setResults(combined);
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : e instanceof Event
+            ? `Event: ${e.type}`
+            : String(e),
+      );
+    }
   }, []);
 
   const onFrame = useCallback(
     (video: HTMLVideoElement) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.drawImage(video, 0, 0);
       processFrame(video);
     },
     [processFrame],

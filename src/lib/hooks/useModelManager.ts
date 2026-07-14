@@ -12,13 +12,20 @@ export function useModelManager() {
   const initialize = useCallback(async () => {
     if (wasmInitialized) return;
     if (initPromise.current) return initPromise.current;
+    setError(null);
     initPromise.current = modelManager.initializeWasm().then(() => {
       setWasmInitialized(true);
     });
     try {
       await initPromise.current;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to initialize WASM");
+      setError(
+        e instanceof Error
+          ? e.message
+          : e instanceof Event
+            ? `Event: ${e.type}`
+            : String(e),
+      );
       initPromise.current = null;
     }
   }, [wasmInitialized]);
@@ -29,7 +36,13 @@ export function useModelManager() {
     try {
       await modelManager.loadModel(type);
     } catch (e) {
-      setError(e instanceof Error ? e.message : `Failed to load model: ${type}`);
+      const detail =
+        e instanceof Error
+          ? e.message
+          : e instanceof Event
+            ? `Event: ${e.type}`
+            : String(e);
+      setError(`Failed to load model: ${type} (${detail})`);
     } finally {
       setLoadingModels((prev) => {
         const next = new Set(prev);
@@ -39,9 +52,12 @@ export function useModelManager() {
     }
   }, []);
 
-  const loadModels = useCallback(async (types: string[]) => {
-    await Promise.all(types.map((t) => loadModel(t)));
-  }, [loadModel]);
+  const loadModels = useCallback(
+    async (types: string[]) => {
+      await Promise.all(types.map((t) => loadModel(t)));
+    },
+    [loadModel],
+  );
 
   const isModelLoading = useCallback(
     (type: string) => loadingModels.has(type),

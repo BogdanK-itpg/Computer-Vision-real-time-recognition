@@ -122,7 +122,12 @@ export function useVideoDetection() {
         videoEl.pause();
         setFrameResults(results);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Video processing failed";
+        const msg =
+          e instanceof Error
+            ? e.message
+            : e instanceof Event
+              ? `Event: ${e.type}`
+              : String(e);
         setError(msg);
         videoEl.pause();
       } finally {

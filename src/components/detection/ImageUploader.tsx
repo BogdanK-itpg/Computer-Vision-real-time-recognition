@@ -27,7 +27,10 @@ export function ImageUploader({ onFileSelect, disabled }: ImageUploaderProps) {
         const url = URL.createObjectURL(file);
         await new Promise((resolve, reject) => {
           img.onload = resolve;
-          img.onerror = reject;
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Failed to load image"));
+          };
           img.src = url;
         });
         const canvas = document.createElement("canvas");

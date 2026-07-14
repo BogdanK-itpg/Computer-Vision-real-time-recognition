@@ -47,7 +47,8 @@ python/**/*.pyc
 python/**/__pycache__/
 
 # mediapipe model cache (browser)
-/public/models/
+/public/models/*
+!/public/models/face_detector/
 
 # typescript
 *.tsbuildinfo

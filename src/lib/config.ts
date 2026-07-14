@@ -75,7 +75,7 @@ const MODEL_BASE = "https://storage.googleapis.com/mediapipe-models";
 
 export const MODEL_REGISTRY: Record<string, ModelEntry> = {
   face_detector: {
-    url: `${MODEL_BASE}/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+    url: "/models/face_detector/model.tflite",
     version: "1",
     sizeBytes: 229746,
     detectorType: "face_detector",
