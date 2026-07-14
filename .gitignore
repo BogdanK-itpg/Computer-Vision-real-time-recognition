@@ -45,6 +45,7 @@ python/scripts/
 python/__pycache__/
 python/**/*.pyc
 python/**/__pycache__/
+src/__pycache__/
 
 # mediapipe model cache (browser)
 /public/models/*
